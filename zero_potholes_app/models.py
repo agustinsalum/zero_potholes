@@ -16,7 +16,7 @@ class City(models.Model):
     def __str__(self):
         return f"{self.name}, {self.province.name}"
 
-class ReportStatus(models.Model):
+class ReportStatus(models.Model): # In Progress, Rejected or Resolved
     name = models.CharField(max_length=20, primary_key=True)
 
     def __str__(self):
@@ -29,11 +29,13 @@ class Report(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
-    street_name = models.CharField(max_length=100)
-    street_number = models.CharField(max_length=10)
+    street_name = models.CharField(max_length=100, null=True, blank=True)
+    street_number = models.CharField(max_length=10, null=True, blank=True)
+    street_height = models.IntegerField(null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     status = models.ForeignKey(ReportStatus, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Report #{self.id} - {self.status.name}"
+
