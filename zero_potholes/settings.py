@@ -33,6 +33,13 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        # Avoids repeating permission_classes = [IsAuthenticated] in every ViewSet
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
 
 # Application definition
 
