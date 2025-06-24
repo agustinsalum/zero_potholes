@@ -11,10 +11,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
-from zero_potholes_app.models import Report, ReportStatus, City, Province
+from zero_potholes_app.models import Report, ReportStatus, ReportSeverity, City, Province
 from zero_potholes_app.api.serializers import (
     ReportSerializer,
     ReportStatusSerializer,
+    ReportSeveritySerializer,
     CitySerializer,
     ProvinceSerializer
 )
@@ -57,7 +58,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         # Extracts the new status from the request body (JSON)
         new_status_name = request.data.get('status')
 
-        if new_status_name not in ['In Progress', 'Resolved']:
+        if new_status_name not in ['In Progress', 'Resolved', 'Rejected']:
             return Response({'detail': 'Invalid status.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -74,6 +75,10 @@ class ReportViewSet(viewsets.ModelViewSet):
 class ReportStatusViewSet(viewsets.ModelViewSet):
     queryset = ReportStatus.objects.all()
     serializer_class = ReportStatusSerializer
+
+class ReportSeverityViewSet(viewsets.ModelViewSet):
+    queryset = ReportSeverity.objects.all()
+    serializer_class = ReportSeveritySerializer
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()

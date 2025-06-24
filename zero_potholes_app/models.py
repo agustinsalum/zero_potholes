@@ -45,6 +45,7 @@ class Report(models.Model):
     street_height = models.IntegerField(null=True, blank=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     status = models.ForeignKey(ReportStatus, on_delete=models.CASCADE)
+    severity = models.ForeignKey(ReportSeverity, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
