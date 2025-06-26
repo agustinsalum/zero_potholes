@@ -70,6 +70,14 @@ class ReportViewSet(viewsets.ModelViewSet):
         report.status = new_status
         report.save()
         return Response({'detail': f'Status updated to {new_status_name}.'}, status=status.HTTP_200_OK)
+    
+    """ Allows unauthenticated users to view only approved reports (In Progress) """
+    
+    @action(detail=False, methods=['get'], permission_classes=[], url_path='approved')
+    def list_approved(self, request):
+        approved_reports = Report.objects.filter(status__name='In Progress')
+        serializer = self.get_serializer(approved_reports, many=True)
+        return Response(serializer.data)
 
 
 class ReportStatusViewSet(viewsets.ModelViewSet):
