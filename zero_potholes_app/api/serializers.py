@@ -8,6 +8,27 @@ Converts database models into a format (usually JSON) that the API can send or r
 from rest_framework import serializers
 from zero_potholes_app.models import Report, ReportStatus, ReportSeverity, City, Province
 
+class PublicReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = [
+            'citizen_first_name',
+            'citizen_last_name',
+            'citizen_email',
+            'latitude',
+            'longitude',
+            'street_name',
+            'street_number',
+            'city',
+            'image',
+            'description',
+        ]
+
+    def create(self, validated_data):
+        # Automatically assign the status 'Received' when creating the public complaint.
+        status_received = ReportStatus.objects.get(name='Received')
+        return Report.objects.create(status=status_received, **validated_data)
+
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report

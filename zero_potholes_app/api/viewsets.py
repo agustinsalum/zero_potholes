@@ -10,9 +10,12 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from rest_framework.permissions import AllowAny
+
 
 from zero_potholes_app.models import Report, ReportStatus, ReportSeverity, City, Province
 from zero_potholes_app.api.serializers import (
+    PublicReportSerializer,
     ReportSerializer,
     ReportStatusSerializer,
     ReportSeveritySerializer,
@@ -37,7 +40,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     # PK should be None; "detail=True" means the action operates on a specific instance (requires an object in the URL)
     # detail=True because this action works with a specific report
     @action(detail=True, methods=['post'])
-    def assign_to_me(self, request, pk=None):
+    def assign_to_me(self, request, pk=None, url_path='assign'):
         # Gets the Report instance whose ID was passed in the URL
         report = self.get_object()
         
@@ -78,6 +81,14 @@ class ReportViewSet(viewsets.ModelViewSet):
         approved_reports = Report.objects.filter(status__name='In Progress')
         serializer = self.get_serializer(approved_reports, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny], url_path='public-create')
+    def public_create(self, request):
+        serializer = PublicReportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'detail': 'Report created successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReportStatusViewSet(viewsets.ModelViewSet):
