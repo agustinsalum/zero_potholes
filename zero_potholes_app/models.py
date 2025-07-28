@@ -46,7 +46,7 @@ class Report(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     status = models.ForeignKey(ReportStatus, on_delete=models.CASCADE)
     severity = models.ForeignKey(ReportSeverity, on_delete=models.CASCADE, null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    assigned_moderator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Report #{self.id} - {self.status.name}"
