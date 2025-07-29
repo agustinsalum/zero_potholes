@@ -1,16 +1,14 @@
+
 """
-WSGI config for zero_potholes project.
+Punto de entrada para desplegar tu proyecto Django en un servidor WSGI (Web Server Gateway Interface).
 
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
+Servidor Sincrónico para HTTP tradicional. Servidores como 	Gunicorn, uWSGI, Apache + mod_wsgi
 """
 
 import os
-
 from django.core.wsgi import get_wsgi_application
 
+# Archivo de configuracion
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zero_potholes.settings')
-
+# Instancia que el servidor web va a usar para enviarle solicitudes a Django.
 application = get_wsgi_application()
