@@ -1,7 +1,7 @@
 
 """
 
-Defines the views that manage the logic for CRUD operations on the models.
+Define las vistas que gestionan la lógica para operaciones CRUD sobre los modelos
 
 """
 
@@ -27,7 +27,7 @@ class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
 
-    """ Allows the authenticated user to list their assigned reports """
+    """ Permite al usuario autenticado listar los reportes asignados a él """
 
     @action(detail=False, methods=['get'], url_path='assigned')
     def assigned_to_me(self, request):
@@ -35,16 +35,16 @@ class ReportViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(reports, many=True)
         return Response(serializer.data)
     
-    """ Allows the authenticated moderator to assign a report to themselves """
+    """ Permite al moderador autenticado asignarse un reporte a sí mismo """
 
-    # PK should be None; "detail=True" means the action operates on a specific instance (requires an object in the URL)
-    # detail=True because this action works with a specific report
+    # PK debería ser None; "detail=True" significa que la acción opera sobre una instancia específica (requiere un objeto en la URL)
+    # detail=True porque esta acción trabaja con un reporte específico
     @action(detail=True, methods=['post'])
     def assign_to_me(self, request, pk=None, url_path='assign'):
-        # Gets the Report instance whose ID was passed in the URL
+        # Obtiene la instancia del Report cuyo ID fue pasado en la URL
         report = self.get_object()
         
-        # Checks if the report already has an assigned user
+        # Cerifica si el reporte ya tiene un usuario asignado
         if report.user is not None:
             return Response({'detail': 'This report is already assigned.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -53,19 +53,19 @@ class ReportViewSet(viewsets.ModelViewSet):
 
         return Response({'detail': 'Report assigned successfully.'}, status=status.HTTP_200_OK)
     
-    """  Updates the status of a specific report to in_progress, resolved, or rejected using a POST request """
+    """ Actualiza el estado de un reporte específico a 'In Progress', 'Resolved' o 'Rejected' mediante una solicitud POST """
     
     @action(detail=True, methods=['post'], url_path='change_status')
     def change_status(self, request, pk=None):
         report = self.get_object()
-        # Extracts the new status from the request body (JSON)
+        # Extrae el nuevo estado desde el cuerpo de la solicitud (JSON)
         new_status_name = request.data.get('status')
 
         if new_status_name not in ['In Progress', 'Resolved', 'Rejected']:
             return Response({'detail': 'Invalid status.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Fetches the ReportStatus object from the database where the name field matches the value of new_status_name.
+            # Obtiene el objeto ReportStatus de la base de datos cuyo campo 'name' coincide con el valor de new_status_name
             new_status = ReportStatus.objects.get(name=new_status_name)
         except ReportStatus.DoesNotExist:
             return Response({'detail': 'Status does not exist in the system.'}, status=status.HTTP_404_NOT_FOUND)
@@ -74,7 +74,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         report.save()
         return Response({'detail': f'Status updated to {new_status_name}.'}, status=status.HTTP_200_OK)
     
-    """ Allows unauthenticated users to view only approved reports (In Progress) """
+    """ Permite a usuarios no autenticados ver solo los reportes aprobados (En progreso) """
     
     @action(detail=False, methods=['get'], permission_classes=[], url_path='approved')
     def list_approved(self, request):

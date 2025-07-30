@@ -1,7 +1,7 @@
 
 """
 
-Defines the API routes and links them to the viewsets.
+Define las rutas de la API y las vincula con los viewsets
 
 """
 
@@ -10,8 +10,9 @@ from .viewsets import ReportViewSet, ReportStatusViewSet, ReportSeverityViewSet,
 
 router = routers.SimpleRouter()
 
-# In this case it is appended to the route of the app's urls
-# router.register(prefix, viewset, basename=None)
+# Usamos register() para vincular una ruta de URL con un ViewSet (crear, leer, actualizar, eliminar)
+# En este caso, se agrega a la ruta del archivo urls de la app
+# router.register(prefijo, viewset, basename=None)
 router.register('reports', ReportViewSet, basename='report')
 router.register('report-status', ReportStatusViewSet, basename='report-status')
 router.register('report-severity', ReportSeverityViewSet, basename='report-severity')

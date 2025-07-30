@@ -1,13 +1,13 @@
 
 """
-
-Ensures that the routes defined in router.py are publicly available in the application.
-
+Garantiza que las rutas definidas en router.py estén disponibles públicamente en la aplicación.
 """
+
 
 from django.urls import path, include
 from .router import router
 
 urlpatterns = [
+    # Usamos "include" para que Django reconozca las rutas y puedan usarse.
     path('', include(router.urls)),
 ]

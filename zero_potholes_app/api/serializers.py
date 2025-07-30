@@ -1,6 +1,7 @@
+
 """
 
-Converts database models into a format (usually JSON) that the API can send or receive.
+Convierte los modelos de base de datos en un formato (usualmente JSON) que la API puede enviar o recibir.
 
 """
 
@@ -11,6 +12,7 @@ from zero_potholes_app.models import Report, ReportStatus, ReportSeverity, City,
 class PublicReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
+        # Incluimos solamente algunos campos
         fields = [
             'citizen_first_name',
             'citizen_last_name',
@@ -25,7 +27,7 @@ class PublicReportSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        # Automatically assign the status 'Received' when creating the public complaint.
+        # Asigna automáticamente el estado 'Received' al crear la denuncia pública
         status_received = ReportStatus.objects.get(name='Received')
         return Report.objects.create(status=status_received, **validated_data)
 
@@ -33,6 +35,7 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = '__all__'
+        # El campo "severity" se omite al crear la denuncia, tanto en el formulario como en la base de datos
         extra_kwargs = {
             'severity': {'required': False, 'allow_null': True}
         }
