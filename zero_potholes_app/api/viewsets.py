@@ -31,24 +31,25 @@ class ReportViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='assigned')
     def assigned_to_me(self, request):
-        reports = Report.objects.filter(user=request.user)
+        reports = Report.objects.filter(assigned_moderator=request.user)
+        # Con "many" indicamos que reports es una lista y no un solo objeto
         serializer = self.get_serializer(reports, many=True)
         return Response(serializer.data)
     
     """ Permite al moderador autenticado asignarse un reporte a sí mismo """
 
-    # PK debería ser None; "detail=True" significa que la acción opera sobre una instancia específica (requiere un objeto en la URL)
-    # detail=True porque esta acción trabaja con un reporte específico
+    # Asignamos true en "detail" ya que requiere un ID de reporte (pk) en la URL
+    # Este endpoint solo acepta solicitudes POST
     @action(detail=True, methods=['post'])
+    # pk=None → Parámetro que recibirá el ID del reporte desde la URL.
     def assign_to_me(self, request, pk=None, url_path='assign'):
         # Obtiene la instancia del Report cuyo ID fue pasado en la URL
         report = self.get_object()
-        
-        # Cerifica si el reporte ya tiene un usuario asignado
-        if report.user is not None:
+        # Verifica si el reporte ya tiene un usuario asignado
+        if report.assigned_moderator is not None:
             return Response({'detail': 'This report is already assigned.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        report.user = request.user
+        report.assigned_moderator = request.user
         report.save()
 
         return Response({'detail': 'Report assigned successfully.'}, status=status.HTTP_200_OK)
@@ -58,14 +59,14 @@ class ReportViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='change_status')
     def change_status(self, request, pk=None):
         report = self.get_object()
-        # Extrae el nuevo estado desde el cuerpo de la solicitud (JSON)
+        # Obtiene desde el cuerpo de la solicitud POST el nuevo estado que se quiere asignar
         new_status_name = request.data.get('status')
 
         if new_status_name not in ['In Progress', 'Resolved', 'Rejected']:
             return Response({'detail': 'Invalid status.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Obtiene el objeto ReportStatus de la base de datos cuyo campo 'name' coincide con el valor de new_status_name
+            # Busca en la tabla ReportStatus un registro cuyo campo name coincida con new_status_name
             new_status = ReportStatus.objects.get(name=new_status_name)
         except ReportStatus.DoesNotExist:
             return Response({'detail': 'Status does not exist in the system.'}, status=status.HTTP_404_NOT_FOUND)
@@ -76,14 +77,20 @@ class ReportViewSet(viewsets.ModelViewSet):
     
     """ Permite a usuarios no autenticados ver solo los reportes aprobados (En progreso) """
     
+    # No requiere autenticación, es público. Por lo tanto, dejamos vacio "permission_classes"
     @action(detail=False, methods=['get'], permission_classes=[], url_path='approved')
     def list_approved(self, request):
+        # El doble guion bajo indica que estamos filtrando por un campo de la tabla relacionada (status.name)
         approved_reports = Report.objects.filter(status__name='In Progress')
         serializer = self.get_serializer(approved_reports, many=True)
         return Response(serializer.data)
+
+    """ Permite a usuarios no autenticados crear un reporte desde la parte pública """
     
+    # Usamos AllowAny ya que Cualquier persona sin autenticación puede usarlo
     @action(detail=False, methods=['post'], permission_classes=[AllowAny], url_path='public-create')
     def public_create(self, request):
+        # Crea una instancia del serializer (PublicReportSerializer) con los datos que el usuario envió
         serializer = PublicReportSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

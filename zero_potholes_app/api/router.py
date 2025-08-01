@@ -11,6 +11,7 @@ from .viewsets import ReportViewSet, ReportStatusViewSet, ReportSeverityViewSet,
 router = routers.SimpleRouter()
 
 # Usamos register() para vincular una ruta de URL con un ViewSet (crear, leer, actualizar, eliminar)
+# Genera automáticamente todas las rutas CRUD
 # En este caso, se agrega a la ruta del archivo urls de la app
 # router.register(prefijo, viewset, basename=None)
 router.register('reports', ReportViewSet, basename='report')
