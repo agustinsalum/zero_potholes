@@ -1,63 +1,141 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Crea tus modelos aquí
+
+# -------------------------------------------------------------------
+#                           MODELOS GEOGRÁFICOS
+# -------------------------------------------------------------------
 
 class Province(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    """
+    Representa una provincia.
+    """
+    name = models.CharField(max_length=100, unique=True)
 
-    # Mostrar la instancia del modelo cuando se convierte a string
+    class Meta:
+        ordering = ["name"]
+
     def __str__(self):
         return self.name
 
+
 class City(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
-    province = models.ForeignKey(Province, on_delete=models.CASCADE)
+    """
+    Representa una ciudad perteneciente a una provincia.
+    """
+    name = models.CharField(max_length=100)
+    province = models.ForeignKey(
+        Province,
+        on_delete=models.CASCADE,
+        related_name="cities"
+    )
+
+    class Meta:
+        unique_together = ("name", "province")
+        ordering = ["name"]
 
     def __str__(self):
         return f"{self.name}, {self.province.name}"
 
+
+# -------------------------------------------------------------------
+#                         MODELOS DE CATÁLOGO
+# -------------------------------------------------------------------
+
 class ReportStatus(models.Model):
-    # Estados: "Received", "In Progress", "Resolved" or "Rejected"
+    """
+    Estado del reporte:
+    - Received
+    - In Progress
+    - Resolved
+    - Rejected
+    """
     name = models.CharField(max_length=20, primary_key=True)
 
     def __str__(self):
         return self.name
-    
+
+
 class ReportSeverity(models.Model):
-    # Estados: Very low, Low, Moderate, High or Critical
+    """
+    Nivel de gravedad:
+    - Very Low
+    - Low
+    - Moderate
+    - High
+    - Critical
+    """
     name = models.CharField(max_length=20, primary_key=True)
 
     def __str__(self):
         return self.name
+
+
+# -------------------------------------------------------------------
+#                             MODELO PRINCIPAL
+# -------------------------------------------------------------------
 
 class Report(models.Model):
-    id = models.AutoField(primary_key=True)
-    image = models.ImageField(upload_to='reports/')
+    """
+    Denuncia realizada por un ciudadano sobre un bache o imperfección vial.
+    """
+
+    # Imagen del problema reportado
+    image = models.ImageField(upload_to="reports/")
+
+    # Descripción textual del incidente
     description = models.TextField()
-    # Con "auto_now_add" asignamos automaticamente la fecha y hora
+
+    # Fecha y hora de creación automática
     date = models.DateTimeField(auto_now_add=True)
+
+    # Datos del ciudadano
     citizen_first_name = models.CharField(max_length=50)
     citizen_last_name = models.CharField(max_length=50)
     citizen_email = models.EmailField()
-    # Latitud y Longitud están entre -180 y 180
-    # Con "max_digits" el total de dígitos que se pueden guardar es 9 (parte entera + decimales)
-    # Con "decimal_places" de los 9 digitos permitimos 6 para la parte decimal (ej: 123.456789)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-    # Con "null" en la base de datos ese campo puede ser null
-    # Con "black" en los formularios o validaciones puede quedar vacío (no es obligatorio)
-    # Algunas ciudades utilizan números para identificar sus calles, mientras que otras nombres
+
+    # Coordenadas geográficas del incidente
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    # Dirección textual (opcional)
     street_name = models.CharField(max_length=100, null=True, blank=True)
     street_number = models.CharField(max_length=10, null=True, blank=True)
     street_height = models.IntegerField(null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    status = models.ForeignKey(ReportStatus, on_delete=models.CASCADE)
-    # La gravedad la asigna el moderador 
-    severity = models.ForeignKey(ReportSeverity, on_delete=models.CASCADE, null=True, blank=True)
-    # Con "SET_NULL" si el moderador es borrado, el campo assigned se pone NULL en lugar de borrar el Report
-    assigned_moderator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Relaciones
+    city = models.ForeignKey(
+        City,
+        on_delete=models.CASCADE,
+        related_name="reports"
+    )
+
+    status = models.ForeignKey(
+        ReportStatus,
+        on_delete=models.CASCADE,
+        related_name="reports"
+    )
+
+    # La gravedad se asigna por un moderador (opcional)
+    severity = models.ForeignKey(
+        ReportSeverity,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reports"
+    )
+
+    # Moderador asignado al caso
+    assigned_moderator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_reports"
+    )
+
+    class Meta:
+        ordering = ["-date"]
 
     def __str__(self):
-        return f"Report #{self.id} - {self.status.name}"
-
+        return f"Reporte #{self.id} - {self.status.name}"
