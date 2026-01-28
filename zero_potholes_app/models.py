@@ -12,9 +12,6 @@ class Province(models.Model):
     """
     name = models.CharField(max_length=100, unique=True)
 
-    class Meta:
-        ordering = ["name"]
-
     def __str__(self):
         return self.name
 
@@ -27,12 +24,10 @@ class City(models.Model):
     province = models.ForeignKey(
         Province,
         on_delete=models.CASCADE,
-        related_name="cities"
     )
 
     class Meta:
         unique_together = ("name", "province")
-        ordering = ["name"]
 
     def __str__(self):
         return f"{self.name}, {self.province.name}"
@@ -50,10 +45,11 @@ class ReportStatus(models.Model):
     - Resolved
     - Rejected
     """
-    name = models.CharField(max_length=20, primary_key=True)
+    name = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
         return self.name
+
 
 
 class ReportSeverity(models.Model):
@@ -65,10 +61,11 @@ class ReportSeverity(models.Model):
     - High
     - Critical
     """
-    name = models.CharField(max_length=20, primary_key=True)
+    name = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
         return self.name
+
 
 
 # -------------------------------------------------------------------
