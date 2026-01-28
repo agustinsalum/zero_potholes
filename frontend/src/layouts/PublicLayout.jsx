@@ -3,7 +3,7 @@ import Navbar from "../components/ui/Navbar";
 
 export default function PublicLayout() {
   const links = [
-    { to: "/welcome", label: "Welcome" },
+    { to: "/", label: "Welcome" },
     { to: "/about", label: "About" },
   ];
 
