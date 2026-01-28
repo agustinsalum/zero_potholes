@@ -15,9 +15,9 @@ export default function AppRoutes() {
     <Routes>
       {/* Rutas públicas */}
       <Route element={<PublicLayout />}>
-        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/" element={<Welcome />} />
         <Route path="/about" element={<AboutPublic />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/admin-login" element={<Login />} />
       </Route>
 
       {/* Rutas privadas */}
@@ -33,7 +33,7 @@ export default function AppRoutes() {
       </Route>
 
       {/* Redirección por defecto */}
-      <Route path="*" element={<Navigate to="/welcome" />} />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }

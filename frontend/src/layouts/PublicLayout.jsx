@@ -5,7 +5,6 @@ export default function PublicLayout() {
   const links = [
     { to: "/welcome", label: "Welcome" },
     { to: "/about", label: "About" },
-    { to: "/login", label: "Login" },
   ];
 
   return (
